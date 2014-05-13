@@ -31,8 +31,17 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="/home/mamotromico/Vidya Development/Personal/SDL 2D Engine/src" />
+			<Add directory="/home/mamotromico/Vidya Development/Personal/SDL 2D Engine/include" />
+			<Add directory="/usr/local/include/SDL2" />
 		</Compiler>
-		<Unit filename="main.cpp" />
+		<Linker>
+			<Add option="-lSDL2 -lSDL2main" />
+			<Add directory="/usr/local/lib" />
+		</Linker>
+		<Unit filename="include/Game.h" />
+		<Unit filename="src/Game.cpp" />
+		<Unit filename="src/main.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
