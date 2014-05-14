@@ -36,11 +36,13 @@
 			<Add directory="/usr/local/include/SDL2" />
 		</Compiler>
 		<Linker>
-			<Add option="-lSDL2 -lSDL2main" />
+			<Add option="-lSDL2 -lSDL2main -lSDL2_image" />
 			<Add directory="/usr/local/lib" />
 		</Linker>
 		<Unit filename="include/Game.h" />
+		<Unit filename="include/TextureManager.h" />
 		<Unit filename="src/Game.cpp" />
+		<Unit filename="src/TextureManager.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Extensions>
 			<code_completion />

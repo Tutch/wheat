@@ -22,6 +22,12 @@
 
 # Images
 *.bmp
+*.BMP
 *.png
 *.jpg
 *.gif
+
+# Codeblocks
+*.layout
+*.depend
+/bin/*

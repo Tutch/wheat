@@ -15,7 +15,7 @@ bool Game::isRunning( ) {
 }
 
 bool Game::init( const char* title, int xpos, int ypos, int width, int height,
-                 bool fullscreen ) {
+    bool fullscreen ) {
   //check flags
   int flags = 0;
   if ( fullscreen ) {
@@ -25,15 +25,15 @@ bool Game::init( const char* title, int xpos, int ypos, int width, int height,
   if ( SDL_Init( SDL_INIT_EVERYTHING ) == 0 ) {
     std::cout << "SDL init success\n";
     //init the window
-    window_ = SDL_CreateWindow( title, xpos, ypos, width, height, flags );
-    if ( window_ != 0 ) {
+    mainWindow_ = SDL_CreateWindow( title, xpos, ypos, width, height, flags );
+    if ( mainWindow_ != 0 ) {
       //window init worked
       std::cout << "window success\n";
-      renderer_ = SDL_CreateRenderer( window_, -1, 0 );
+      renderer_ = SDL_CreateRenderer( mainWindow_, -1, 0 );
       if( renderer_ != 0 ) {
         //Render init worked
         std::cout << "render success\n";
-        SDL_SetRenderDrawColor( renderer_, 255,255,255,255 );
+        SDL_SetRenderDrawColor( renderer_, 255, 0, 0,255 );
       } else {
         std::cout << "render failed\n";
         return false; //it failed
@@ -48,30 +48,21 @@ bool Game::init( const char* title, int xpos, int ypos, int width, int height,
   }
   std::cout << "All according to keikaku\n";
   isRunning_ = true; // All good on the front, start the main loop
-
-  //load image
-  SDL_Surface* tempSurface = SDL_LoadBMP("linkWalk.BMP");
-  texture_ = SDL_CreateTextureFromSurface(renderer_, tempSurface);
-  SDL_FreeSurface(tempSurface);
-  sourceRectangle_.x = 0;
-  destinationRectangle_.x = 0;
-  sourceRectangle_.y = 0;
-  destinationRectangle_.y = 0;
-  destinationRectangle_.w = sourceRectangle_.w = 100;
-  destinationRectangle_.h = sourceRectangle_.h = 120;
+  TextureManager::Instance( )->load( "linkWalk.png","playerWalk", renderer_ );
   return true;
 }
 
 void Game::render( ) {
   SDL_RenderClear( renderer_ ); //clear the renderer to draw
-  SDL_RenderCopyEx( renderer_, texture_, &sourceRectangle_,
-                    &destinationRectangle_, 0, 0, SDL_FLIP_HORIZONTAL );
+  TextureManager::Instance( )->draw("playerWalk", 0, 0, 120, 120, renderer_);
+  TextureManager::Instance( )->drawFrame("playerWalk", 120, 0, 120, 120, 1, currentFrame_,
+      renderer_);
   SDL_RenderPresent( renderer_ ); //draw stuff
 }
 
 void Game::handleEvents( ) {
   SDL_Event event;
-  if ( SDL_PollEvent(&event) ) {
+  if ( SDL_PollEvent( &event ) ) {
     switch (event.type) {
       case SDL_QUIT:
         isRunning_ = false;
@@ -83,12 +74,12 @@ void Game::handleEvents( ) {
 }
 
 void Game::update() {
-    sourceRectangle_.x = 120 * ( ( ( SDL_GetTicks( ) / 100 ) % 6 ) );
+  currentFrame_ = int( ( SDL_GetTicks( ) / 100 ) % 6 );
 }
 
 void Game::clean( ) {
   std::cout << "cleaning\n";
-  SDL_DestroyWindow( window_ );
+  SDL_DestroyWindow( mainWindow_ );
   SDL_DestroyRenderer( renderer_ );
   SDL_Quit( );
 }
