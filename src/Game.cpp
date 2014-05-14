@@ -10,80 +10,85 @@ Game::~Game( )
     //dtor
 }
 
-bool Game::init( const char* title, int xpos, int ypos, int width, int height, bool fullscreen ) {
-    //check flags
-    int flags = 0;
-    if ( fullscreen ) {
-        flags = SDL_WINDOW_FULLSCREEN;
-    }
-    //try to initialize SDL
-    if ( SDL_Init( SDL_INIT_EVERYTHING ) == 0 ) {
-        std::cout << "SDL init success\n";
-        //init the window
-        m_pWindow = SDL_CreateWindow( title, xpos, ypos, width, height, flags );
-        if ( m_pWindow != 0 ) {
-            //window init worked
-            std::cout << "window success\n";
-            m_pRenderer = SDL_CreateRenderer( m_pWindow, -1, 0 );
-            if( m_pRenderer != 0 ) {
-                //Render init worked
-                std::cout << "render success\n";
-                SDL_SetRenderDrawColor( m_pRenderer, 255,255,255,255 );
-            } else {
-                std::cout << "render failed\n";
-                return false; //it failed
-            }
-        } else {
-            std::cout << "window failed\n";
-            return false; //if failed, can't you see?
-        }
+bool Game::isRunning( ) {
+ return isRunning_;
+}
+
+bool Game::init( const char* title, int xpos, int ypos, int width, int height,
+                 bool fullscreen ) {
+  //check flags
+  int flags = 0;
+  if ( fullscreen ) {
+    flags = SDL_WINDOW_FULLSCREEN;
+  }
+  //try to initialize SDL
+  if ( SDL_Init( SDL_INIT_EVERYTHING ) == 0 ) {
+    std::cout << "SDL init success\n";
+    //init the window
+    window_ = SDL_CreateWindow( title, xpos, ypos, width, height, flags );
+    if ( window_ != 0 ) {
+      //window init worked
+      std::cout << "window success\n";
+      renderer_ = SDL_CreateRenderer( window_, -1, 0 );
+      if( renderer_ != 0 ) {
+        //Render init worked
+        std::cout << "render success\n";
+        SDL_SetRenderDrawColor( renderer_, 255,255,255,255 );
+      } else {
+        std::cout << "render failed\n";
+        return false; //it failed
+      }
     } else {
-        std::cout << "SDL failed, life is suffering\n";
-        return false; //SDL failed, it's ogre
+      std::cout << "window failed\n";
+      return false; //if failed, can't you see?
     }
-    std::cout << "All according to keikaku\n";
-    m_bRunning = true; // All good on the front, start the main loop
+  } else {
+    std::cout << "SDL failed, life is suffering\n";
+    return false; //SDL failed, it's ogre
+  }
+  std::cout << "All according to keikaku\n";
+  isRunning_ = true; // All good on the front, start the main loop
 
-    //load image
-    SDL_Surface* pTempSurface = SDL_LoadBMP("linkWalk.BMP");
-    m_pTexture = SDL_CreateTextureFromSurface(m_pRenderer, pTempSurface);
-    SDL_FreeSurface(pTempSurface);
-    m_sourceRectangle.x = 0;
-    m_destinationRectangle.x = 0;
-    m_sourceRectangle.y = 0;
-    m_destinationRectangle.y = 0;
-    m_destinationRectangle.w = m_sourceRectangle.w = 100;
-    m_destinationRectangle.h = m_sourceRectangle.h = 120;
-
-    return true;
+  //load image
+  SDL_Surface* tempSurface = SDL_LoadBMP("linkWalk.BMP");
+  texture_ = SDL_CreateTextureFromSurface(renderer_, tempSurface);
+  SDL_FreeSurface(tempSurface);
+  sourceRectangle_.x = 0;
+  destinationRectangle_.x = 0;
+  sourceRectangle_.y = 0;
+  destinationRectangle_.y = 0;
+  destinationRectangle_.w = sourceRectangle_.w = 100;
+  destinationRectangle_.h = sourceRectangle_.h = 120;
+  return true;
 }
 
 void Game::render( ) {
-    SDL_RenderClear( m_pRenderer ); //clear the renderer to draw
-    SDL_RenderCopyEx( m_pRenderer, m_pTexture, &m_sourceRectangle, &m_destinationRectangle, 0, 0, SDL_FLIP_HORIZONTAL );
-    SDL_RenderPresent( m_pRenderer ); //draw stuff
+  SDL_RenderClear( renderer_ ); //clear the renderer to draw
+  SDL_RenderCopyEx( renderer_, texture_, &sourceRectangle_,
+                    &destinationRectangle_, 0, 0, SDL_FLIP_HORIZONTAL );
+  SDL_RenderPresent( renderer_ ); //draw stuff
 }
 
 void Game::handleEvents( ) {
-    SDL_Event event;
-    if ( SDL_PollEvent(&event) ) {
-        switch (event.type) {
-            case SDL_QUIT:
-                m_bRunning = false;
-                break;
-            default:
-                break;
-        }
+  SDL_Event event;
+  if ( SDL_PollEvent(&event) ) {
+    switch (event.type) {
+      case SDL_QUIT:
+        isRunning_ = false;
+        break;
+      default:
+        break;
     }
+  }
 }
 
 void Game::update() {
-    m_sourceRectangle.x = 120 * ( ( ( SDL_GetTicks( ) / 100 ) % 6 ) );
+    sourceRectangle_.x = 120 * ( ( ( SDL_GetTicks( ) / 100 ) % 6 ) );
 }
 
 void Game::clean( ) {
-    std::cout << "cleaning\n";
-    SDL_DestroyWindow( m_pWindow );
-    SDL_DestroyRenderer( m_pRenderer );
-    SDL_Quit( );
+  std::cout << "cleaning\n";
+  SDL_DestroyWindow( window_ );
+  SDL_DestroyRenderer( renderer_ );
+  SDL_Quit( );
 }
